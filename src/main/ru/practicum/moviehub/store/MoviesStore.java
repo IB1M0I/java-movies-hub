@@ -10,13 +10,18 @@ import java.util.List;
 public class MoviesStore {
     private List<Movie> movies = new ArrayList<>();
 
+
     public void addMovie(Movie movie) {
-        movies.add(movie);
+            movies.add(movie);
     }
 
     public List<Movie> getAllMovies() {
         return movies;
     }
 
+    public void clear(){
+        movies.clear();
+        Movie.clearID();
+    }
 
 }
