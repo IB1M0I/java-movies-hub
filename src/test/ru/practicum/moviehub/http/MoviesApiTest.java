@@ -295,7 +295,7 @@ public class MoviesApiTest {
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
 
-        assertEquals(post.substring(0, post.length() - 1) + ",\"ID\":3}", response.body());
+        assertEquals(post.substring(0, post.length() - 1) + ",\"id\":3}", response.body());
     }
 
     //addNewMovie с названием 101 символ вернет код 422
