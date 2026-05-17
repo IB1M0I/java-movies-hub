@@ -15,8 +15,8 @@ public class Movie {
     private String director;
     private int year;
 
-    private static int nextID = 1;
-    private final int ID = nextID++;
+    private static int nextId = 1;
+    private final int id = nextId++;
 
     public Movie(String title, String description, String genre, int duration, String director, int year) throws IllegalArgumentException, ErrorResponse {
         this.title = title;
@@ -36,16 +36,16 @@ public class Movie {
     public Movie() {
     }
 
-    public static void clearID() {
-        nextID = 1;
+    public static void clearId() {
+        nextId = 1;
     }
 
     public boolean checkYear(int year) {
         return year > 1888 && year < LocalDate.now().getYear() + 1;
     }
 
-    public int getID() {
-        return ID;
+    public int getId() {
+        return id;
     }
 
     public int getYear() {
@@ -56,11 +56,11 @@ public class Movie {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Movie movie = (Movie) o;
-        return duration == movie.duration && year == movie.year && ID == movie.ID && Objects.equals(title, movie.title) && Objects.equals(description, movie.description) && Objects.equals(genre, movie.genre) && Objects.equals(director, movie.director);
+        return duration == movie.duration && year == movie.year && id == movie.id && Objects.equals(title, movie.title) && Objects.equals(description, movie.description) && Objects.equals(genre, movie.genre) && Objects.equals(director, movie.director);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, description, genre, duration, director, year, ID);
+        return Objects.hash(title, description, genre, duration, director, year, id);
     }
 }

@@ -21,11 +21,11 @@ public class MoviesStore {
 
     public void clear() {
         movies.clear();
-        Movie.clearID();
+        Movie.clearId();
     }
 
     public boolean delet(int id) {
-        return movies.removeIf(movie -> movie.getID() == id);
+        return movies.removeIf(movie -> movie.getId() == id);
     }
 
 }

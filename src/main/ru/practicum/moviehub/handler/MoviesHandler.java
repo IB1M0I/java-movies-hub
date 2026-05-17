@@ -89,7 +89,7 @@ public class MoviesHandler extends BaseHttpHandler {
             int id = Integer.parseInt(strID);
 
             Optional<Movie> optionalMovie = store.getAllMovies().stream()
-                    .filter(m -> m.getID() == id)
+                    .filter(m -> m.getId() == id)
                     .findFirst();
 
             if (optionalMovie.isPresent()) {
