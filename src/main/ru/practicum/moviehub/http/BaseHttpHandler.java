@@ -21,7 +21,6 @@ public abstract class BaseHttpHandler implements HttpHandler {
         ex.sendResponseHeaders(status, 0);
 
 
-
         try (OutputStream os = ex.getResponseBody()) {
             os.write(json.getBytes(StandardCharsets.UTF_8));
         }

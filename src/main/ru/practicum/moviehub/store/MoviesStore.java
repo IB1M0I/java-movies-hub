@@ -12,20 +12,20 @@ public class MoviesStore {
 
 
     public void addMovie(Movie movie) {
-            movies.add(movie);
+        movies.add(movie);
     }
 
     public List<Movie> getAllMovies() {
         return movies;
     }
 
-    public void clear(){
+    public void clear() {
         movies.clear();
         Movie.clearID();
     }
 
-    public boolean delet(int id){
-       return movies.removeIf(movie ->  movie.getID() == id);
+    public boolean delet(int id) {
+        return movies.removeIf(movie -> movie.getID() == id);
     }
 
 }

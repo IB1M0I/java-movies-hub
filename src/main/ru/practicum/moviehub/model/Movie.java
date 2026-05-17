@@ -18,29 +18,29 @@ public class Movie {
     private static int nextID = 1;
     private final int ID = nextID++;
 
-    public Movie(String title, String description, String genre, int duration, String director, int year) throws IllegalArgumentException{
+    public Movie(String title, String description, String genre, int duration, String director, int year) throws IllegalArgumentException, ErrorResponse {
         this.title = title;
         this.description = description;
         this.genre = genre;
         this.duration = duration;
         this.director = director;
 
-
         if (checkYear(year)) {
             this.year = year;
-        }else{
-
+        } else {
+            throw new ErrorResponse("Неправильный год", 422);
         }
 
     }
 
-    public Movie(){}
+    public Movie() {
+    }
 
-    public static void clearID(){
+    public static void clearID() {
         nextID = 1;
     }
 
-    public boolean checkYear(int year){
+    public boolean checkYear(int year) {
         return year > 1888 && year < LocalDate.now().getYear() + 1;
     }
 

@@ -1,9 +1,6 @@
 package ru.practicum.moviehub.handler;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import ru.practicum.moviehub.api.ErrorResponse;
 import ru.practicum.moviehub.http.BaseHttpHandler;
@@ -15,7 +12,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,7 +27,6 @@ public class MoviesHandler extends BaseHttpHandler {
     @Override
     public void handle(HttpExchange exchange) {
         try {
-
             String path = exchange.getRequestURI().getPath();
             String[] strSplit = path.split("/");
 
@@ -40,6 +35,7 @@ public class MoviesHandler extends BaseHttpHandler {
                     String query = exchange.getRequestURI().getQuery();
                     if (strSplit.length == 2 && strSplit[1].equals("movies") && query == null) {
                         getAllMovies(exchange);
+                        break;
                     }
                     if (strSplit.length == 3 && query == null) {
                         getMovieID(exchange, strSplit[2]);
@@ -60,7 +56,21 @@ public class MoviesHandler extends BaseHttpHandler {
             }
         } catch (ErrorResponse e) {
             try {
-                sendJson(exchange, e.getCode(), e.getError());
+                JsonObject obj = new JsonObject();
+                obj.addProperty("time", e.getTimestamp().toString());
+                obj.addProperty("code", e.getCode());
+
+                JsonElement details;
+                try {
+                    details = JsonParser.parseString(e.getError());
+                } catch (JsonSyntaxException ex) {
+                    details = new JsonPrimitive(e.getError()); // если не JSON — оборачиваем как строку
+
+                }
+                obj.add("details", details);
+
+
+                sendJson(exchange, e.getCode(), obj.toString());
             } catch (IOException ex) {
                 System.out.println("Ошибка отправки");
             }
@@ -92,9 +102,7 @@ public class MoviesHandler extends BaseHttpHandler {
             throw new ErrorResponse("Некорректный ID", 400);
         } catch (IOException e) {
             System.out.println("Ошибка отправки");
-            ;
         }
-
     }
 
     private void addNewMovie(HttpExchange exchange) throws IOException, ErrorResponse {
@@ -103,16 +111,19 @@ public class MoviesHandler extends BaseHttpHandler {
         try (InputStream is = exchange.getRequestBody()) {
             String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
-
             List<String> error = new ArrayList<>();
 
-
-            JsonElement jsonElement = JsonParser.parseString(json);
+            JsonElement jsonElement = null;
+            try {
+                jsonElement = JsonParser.parseString(json);
+            } catch (JsonSyntaxException e) {
+                throw new ErrorResponse("Неправильный JSON", 400);
+            }
             JsonObject jsonObject;
             if (jsonElement.isJsonObject()) {
                 jsonObject = jsonElement.getAsJsonObject();
             } else {
-                throw new ErrorResponse("Неправильный JSON", 400);//TODO
+                throw new ErrorResponse("Неправильный JSON", 400);
             }
 
             if (jsonObject.get("title").getAsString().length() >= 100) {
@@ -133,7 +144,6 @@ public class MoviesHandler extends BaseHttpHandler {
                 JsonObject errorObject = new JsonObject();
                 errorObject.addProperty("error", "Ошибка валидации");
                 errorObject.add("details", gson.toJsonTree(error));
-
 
                 throw new ErrorResponse(gson.toJson(errorObject), 422);
             }
@@ -168,12 +178,11 @@ public class MoviesHandler extends BaseHttpHandler {
         try {
             int year = Integer.parseInt(query.split("=")[1]);
 
-
             List<Movie> movies = store.getAllMovies().stream()
                     .filter(m -> m.getYear() == year)
                     .collect(Collectors.toList());
 
-                sendJson(exchange, 200, gson.toJson(movies));
+            sendJson(exchange, 200, gson.toJson(movies));
 
         } catch (NumberFormatException e) {
             throw new ErrorResponse("Некорректный параметр запроса — 'year'", 400);

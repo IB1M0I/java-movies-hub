@@ -1,7 +1,6 @@
 package ru.practicum.moviehub.http;
 
 import com.sun.net.httpserver.HttpServer;
-import ru.practicum.moviehub.api.ErrorResponse;
 import ru.practicum.moviehub.handler.MoviesHandler;
 import ru.practicum.moviehub.store.MoviesStore;
 
@@ -14,10 +13,8 @@ public class MoviesServer {
 
     public MoviesServer(MoviesStore store, int port) throws IOException {
         this.store = store;
-
-
-            server = HttpServer.create(new InetSocketAddress(port), 0);
-            server.createContext("/movies",new MoviesHandler(store));
+        server = HttpServer.create(new InetSocketAddress(port), 0);
+        server.createContext("/movies", new MoviesHandler(store));
     }
 
     public void start() {
