@@ -48,6 +48,10 @@ public class Movie {
         return ID;
     }
 
+    public int getYear() {
+        return year;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

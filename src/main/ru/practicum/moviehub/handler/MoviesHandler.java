@@ -15,8 +15,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MoviesHandler extends BaseHttpHandler {
     MoviesStore store;
@@ -27,25 +29,33 @@ public class MoviesHandler extends BaseHttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange exchange)  {
+    public void handle(HttpExchange exchange) {
         try {
 
             String path = exchange.getRequestURI().getPath();
             String[] strSplit = path.split("/");
+
             switch (exchange.getRequestMethod()) {
                 case "GET":
-                    if (strSplit.length == 2) {
+                    String query = exchange.getRequestURI().getQuery();
+                    if (strSplit.length == 2 && strSplit[1].equals("movies") && query == null) {
                         getAllMovies(exchange);
-                    } else if (strSplit.length == 3) {
+                    }
+                    if (strSplit.length == 3 && query == null) {
                         getMovieID(exchange, strSplit[2]);
+                        break;
+                    }
+                    if (strSplit.length == 2 && strSplit[1].startsWith("movies") && query.startsWith("year=")) {
+                        getMoviesFilterYear(exchange, query);
                     }
                     break;
                 case "POST":
                     addNewMovie(exchange);
                     break;
                 case "DELETE":
-                    if(strSplit.length == 3){}
-                    deleteMovie(exchange,strSplit[2]);
+                    if (strSplit.length == 3) {
+                        deleteMovie(exchange, strSplit[2]);
+                    }
                     break;
             }
         } catch (ErrorResponse e) {
@@ -54,7 +64,7 @@ public class MoviesHandler extends BaseHttpHandler {
             } catch (IOException ex) {
                 System.out.println("Ошибка отправки");
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Ошибка отправки");
         }
     }
@@ -72,16 +82,17 @@ public class MoviesHandler extends BaseHttpHandler {
                     .filter(m -> m.getID() == id)
                     .findFirst();
 
-            if(optionalMovie.isPresent()){
+            if (optionalMovie.isPresent()) {
                 Movie movie = optionalMovie.get();
-                sendJson(exchange,200,gson.toJson(movie));
-            }else{
-                throw new ErrorResponse("Фильм не найден",404);
+                sendJson(exchange, 200, gson.toJson(movie));
+            } else {
+                throw new ErrorResponse("Фильм не найден", 404);
             }
         } catch (NumberFormatException e) {
-            throw new ErrorResponse("Некорректный ID",400);
+            throw new ErrorResponse("Некорректный ID", 400);
         } catch (IOException e) {
-            System.out.println("Ошибка отправки");;
+            System.out.println("Ошибка отправки");
+            ;
         }
 
     }
@@ -134,23 +145,38 @@ public class MoviesHandler extends BaseHttpHandler {
         }
 
 
-
     }
 
     private void deleteMovie(HttpExchange exchange, String strID) throws ErrorResponse {
         try {
             int id = Integer.parseInt(strID);
 
-            if(store.delet(id)){
+            if (store.delet(id)) {
                 sendNoContent(exchange);
-            }else{
-                throw new ErrorResponse("Фильм не найден",404);
+            } else {
+                throw new ErrorResponse("Фильм не найден", 404);
             }
 
-        }catch (NumberFormatException e){
-            throw new ErrorResponse("Некорректный ID",400);
+        } catch (NumberFormatException e) {
+            throw new ErrorResponse("Некорректный ID", 400);
         } catch (IOException e) {
             System.out.println("Ошибка отправки ответа");
+        }
+    }
+
+    private void getMoviesFilterYear(HttpExchange exchange, String query) throws ErrorResponse, IOException {
+        try {
+            int year = Integer.parseInt(query.split("=")[1]);
+
+
+            List<Movie> movies = store.getAllMovies().stream()
+                    .filter(m -> m.getYear() == year)
+                    .collect(Collectors.toList());
+
+                sendJson(exchange, 200, gson.toJson(movies));
+
+        } catch (NumberFormatException e) {
+            throw new ErrorResponse("Некорректный параметр запроса — 'year'", 400);
         }
     }
 }

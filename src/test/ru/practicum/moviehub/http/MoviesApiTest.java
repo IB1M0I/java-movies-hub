@@ -25,7 +25,7 @@ public class MoviesApiTest {
     private static final String BASE = "http://localhost:8080"; // !!! добавьте базовую часть URL
     private static MoviesServer server;
     private static HttpClient client;
-    private static Gson gson = new  Gson();
+    private static Gson gson = new Gson();
     private static MoviesStore movies;
 
     private static final Movie movie1 = new Movie("Пираты", "Пираты в море", "Драма", 87, "Робертто", 2000);
@@ -69,7 +69,7 @@ public class MoviesApiTest {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8081/movies")) // !!! Добавьте правильный URI
                 .GET()
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
@@ -97,7 +97,7 @@ public class MoviesApiTest {
                 .GET()
                 .uri(URI.create(BASE + "/movies"))
                 .version(HttpClient.Version.HTTP_1_1)
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .build();
 
         try {
@@ -125,7 +125,7 @@ public class MoviesApiTest {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies"))
                 .POST(HttpRequest.BodyPublishers.ofString(post))
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
@@ -148,17 +148,17 @@ public class MoviesApiTest {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies"))
                 .POST(HttpRequest.BodyPublishers.ofString(post))
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        HttpResponse<String> response = client.send(request,HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String contentTypeHeaderValue =
                 response.headers().firstValue("Content-Type").orElse("");
 
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
-        assertEquals(422,response.statusCode());
+        assertEquals(422, response.statusCode());
         assertTrue(response.body().contains("Название не должно быть больше 100 символов"));
     }
 
@@ -170,17 +170,17 @@ public class MoviesApiTest {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies"))
                 .POST(HttpRequest.BodyPublishers.ofString(post))
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        HttpResponse<String> response = client.send(request,HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String contentTypeHeaderValue =
                 response.headers().firstValue("Content-Type").orElse("");
 
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
-        assertEquals(422,response.statusCode());
+        assertEquals(422, response.statusCode());
         assertTrue(response.body().contains("Название не должно быть пустым"));
     }
 
@@ -192,17 +192,17 @@ public class MoviesApiTest {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies"))
                 .POST(HttpRequest.BodyPublishers.ofString(post))
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        HttpResponse<String> response = client.send(request,HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String contentTypeHeaderValue =
                 response.headers().firstValue("Content-Type").orElse("");
 
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
-        assertEquals(422,response.statusCode());
+        assertEquals(422, response.statusCode());
         assertTrue(response.body().contains("Год должен быть от 1888 до " + LocalDate.now().getYear() + 1));
     }
 
@@ -215,16 +215,16 @@ public class MoviesApiTest {
                 .uri(URI.create(BASE + "/movies"))
                 .POST(HttpRequest.BodyPublishers.ofString(post))
                 .version(HttpClient.Version.HTTP_1_1)
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .build();
 
-        HttpResponse<String> response = client.send(request,HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String contentTypeHeaderValue =
                 response.headers().firstValue("Content-Type").orElse("");
 
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
-        assertEquals(422,response.statusCode());
+        assertEquals(422, response.statusCode());
         assertTrue(response.body().contains("Название не должно быть пустым"));
     }
 
@@ -238,13 +238,13 @@ public class MoviesApiTest {
                 .uri(URI.create(BASE + "/movies"))
                 .POST(HttpRequest.BodyPublishers.ofString(post))
                 .version(HttpClient.Version.HTTP_1_1)
-                .header("Content-Type","text/html")
+                .header("Content-Type", "text/html")
                 .build();
 
-        HttpResponse<String> response = client.send(request,HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
-        assertEquals(415,response.statusCode());
+        assertEquals(415, response.statusCode());
 
 
     }
@@ -254,7 +254,7 @@ public class MoviesApiTest {
     void getMovieID_ID1_return200() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies/1"))
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .GET()
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
@@ -265,7 +265,7 @@ public class MoviesApiTest {
 
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
-        assertEquals(200,response.statusCode());
+        assertEquals(200, response.statusCode());
         assertEquals(movie1, gson.fromJson(response.body(), Movie.class));
 
     }
@@ -275,7 +275,7 @@ public class MoviesApiTest {
     void getMovieID_ID0_return404() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies/10"))
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .GET()
                 .build();
@@ -286,7 +286,7 @@ public class MoviesApiTest {
 
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
-        assertEquals(404,response.statusCode());
+        assertEquals(404, response.statusCode());
         assertTrue(response.body().contains("Фильм не найден"));
     }
 
@@ -295,7 +295,7 @@ public class MoviesApiTest {
     void getMovieID_IDabc_return400() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies/abc"))
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .GET()
                 .build();
@@ -306,16 +306,16 @@ public class MoviesApiTest {
 
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
-        assertEquals(400,response.statusCode());
+        assertEquals(400, response.statusCode());
         assertTrue(response.body().contains("Некорректный ID"));
     }
-    
+
     //deleteMovie с корректным ID2 удалит элемент
     @Test
     void deleteMovies_ID2() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies/2"))
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .DELETE()
                 .build();
@@ -326,7 +326,7 @@ public class MoviesApiTest {
 
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
-        assertEquals(204,response.statusCode());
+        assertEquals(204, response.statusCode());
     }
 
     //deleteMovie с id5 которого нет вернет код 404
@@ -334,7 +334,7 @@ public class MoviesApiTest {
     void deleteMovies_ID5() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies/5"))
-                .header("Content-Type","application/json")
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .DELETE()
                 .build();
@@ -345,6 +345,71 @@ public class MoviesApiTest {
 
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
-        assertEquals(404,response.statusCode());
+        assertEquals(404, response.statusCode());
+    }
+
+    //getMoviesFilterYear вернет список фильмов 2000 годов
+    @Test
+    void getMoviesFilterYear_2005_return200() throws IOException, InterruptedException {
+
+        Movie pikol = new Movie("Пикол", "История Пикола", "Экшен", 1400, "Дуррито", 2000);
+        Movie vudi = new Movie("Вуди", "Магическое приключение", "фэнтези", 80, "Дуррито", 2000);
+        Movie vtorzhenie2 = new Movie("Вторжение 2", "Космические захватчики", "Экшен", 160, "Дуррито", 2007);
+
+        movies.addMovie(pikol);
+        movies.addMovie(vudi);
+        movies.addMovie(vtorzhenie2);
+
+        List<Movie> expected = List.of(movie1, pikol, vudi);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE + "/movies?year=2000"))
+                .GET()
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+
+        String contentTypeHeaderValue =
+                response.headers().firstValue("Content-Type").orElse("");
+
+        assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
+                "Content-Type должен содержать формат данных и кодировку");
+
+        assertEquals(200, response.statusCode());
+        assertEquals(expected, gson.fromJson(response.body(), new ListOfMoviesTypeToken().getType()));
+
+    }
+
+    //getMoviesFilterYear вернет пустой список с кодом 200
+    @Test
+    void getMoviesFilterYear_2010_return_code_200() throws IOException, InterruptedException {
+
+        MoviesStore emptyStore = new MoviesStore();
+        MoviesServer emptyServer = new MoviesServer(emptyStore, 8081);
+        emptyServer.start();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE + "/movies?year=2010"))
+                .GET()
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+
+        String contentTypeHeaderValue =
+                response.headers().firstValue("Content-Type").orElse("");
+
+        assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
+                "Content-Type должен содержать формат данных и кодировку");
+
+        assertEquals(200, response.statusCode());
+
+        assertTrue(response.body().startsWith("[") && response.body().endsWith("]") && response.body().length() == 2,
+                "Ожидается JSON-массив");
     }
 }
