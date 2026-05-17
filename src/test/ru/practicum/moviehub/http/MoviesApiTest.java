@@ -59,9 +59,9 @@ public class MoviesApiTest {
     }
 
 
-    //getMovies с пустым списком вернет код200
+    //getAllMovies с пустым списком вернет код200
     @Test
-    void getMovies_whenEmpty_returnsEmptyArray() throws Exception {
+    void getAllMovies_whenEmpty_returnsEmptyArray() throws Exception {
         MoviesStore emptyStore = new MoviesStore();
         MoviesServer emptyServer = new MoviesServer(emptyStore, 8081);
         emptyServer.start();
@@ -90,9 +90,9 @@ public class MoviesApiTest {
                 "Ожидается JSON-массив");
     }
 
-    //getMovies вернет заполненный список и код 200
+    //getAllMovies вернет заполненный список и код 200
     @Test
-    void getMovies_returnArray() {
+    void getAllMovies_returnArray() {
         HttpRequest req = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(BASE + "/movies"))
@@ -117,9 +117,9 @@ public class MoviesApiTest {
 
     }
 
-    //postMovies успешное добавление поста с кодом 201
+    //addNewMovie успешное добавление поста с кодом 201
     @Test
-    void postMovies_returnCode201() throws IOException, InterruptedException {
+    void addNewMovie_returnCode201() throws IOException, InterruptedException {
         String post = "{\"title\":\"Ромарио\",\"description\":\"Приключение Ромарио\",\"genre\":\"Комедия\",\"duration\":110,\"director\":\"Паприкко\",\"year\":2026}";
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -140,9 +140,9 @@ public class MoviesApiTest {
         assertEquals(post.substring(0, post.length() - 1) + ",\"ID\":3}", response.body());
     }
 
-    //postMovies с названием 101 символ вернет код 422
+    //addNewMovie с названием 101 символ вернет код 422
     @Test
-    void postMovies_Line101_return422() throws IOException, InterruptedException {
+    void addNewMovie_Line101_return422() throws IOException, InterruptedException {
         String post = "{\"title\":\"ааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааа\",\"description\":\"Приключение Ромарио\",\"genre\":\"Комедия\",\"duration\":110,\"director\":\"Паприкко\",\"year\":2026}";
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -162,9 +162,9 @@ public class MoviesApiTest {
         assertTrue(response.body().contains("Название не должно быть больше 100 символов"));
     }
 
-    //postMovies с пустым название вернет код 422
+    //addNewMovie с пустым название вернет код 422
     @Test
-    void postMovies_Line0_return422() throws IOException, InterruptedException {
+    void addNewMovie_Line0_return422() throws IOException, InterruptedException {
         String post = "{\"title\":\"\",\"description\":\"Приключение Ромарио\",\"genre\":\"Комедия\",\"duration\":110,\"director\":\"Паприкко\",\"year\":2026}";
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -184,9 +184,9 @@ public class MoviesApiTest {
         assertTrue(response.body().contains("Название не должно быть пустым"));
     }
 
-    //postMovies с 1887 годом вернет код 422
+    //addNewMovie с 1887 годом вернет код 422
     @Test
-    void postMovies_year1887_return422() throws IOException, InterruptedException {
+    void addNewMovie_year1887_return422() throws IOException, InterruptedException {
         String post = "{\"title\":\"Ромарио\",\"description\":\"Приключение Ромарио\",\"genre\":\"Комедия\",\"duration\":110,\"director\":\"Паприкко\",\"year\":1887}";
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -206,9 +206,9 @@ public class MoviesApiTest {
         assertTrue(response.body().contains("Год должен быть от 1888 до " + LocalDate.now().getYear() + 1));
     }
 
-    //postMovies с годом 2027 вернет код 422
+    //addNewMovie с годом 2027 вернет код 422
     @Test
-    void postMovies_year2027_return422() throws IOException, InterruptedException {
+    void addNewMovie_year2027_return422() throws IOException, InterruptedException {
         String post = "{\"title\":\"\",\"description\":\"Приключение Ромарио\",\"genre\":\"Комедия\",\"duration\":110,\"director\":\"Паприкко\",\"year\":2027}";
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -228,8 +228,10 @@ public class MoviesApiTest {
         assertTrue(response.body().contains("Название не должно быть пустым"));
     }
 
+
+    //addNewMovie с неправильным Content-Type вернет код 415
     @Test
-    void postMovies_Content_text_html_return_415() throws IOException, InterruptedException {
+    void addNewMovie_Content_text_html_return_415() throws IOException, InterruptedException {
         String post = "{\"title\":\"\",\"description\":\"Приключение Ромарио\",\"genre\":\"Комедия\",\"duration\":110,\"director\":\"Паприкко\",\"year\":2027}";
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -245,5 +247,104 @@ public class MoviesApiTest {
         assertEquals(415,response.statusCode());
 
 
+    }
+
+    //getMovieID с id1 вернет элемент и код 200
+    @Test
+    void getMovieID_ID1_return200() throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE + "/movies/1"))
+                .header("Content-Type","application/json")
+                .GET()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String contentTypeHeaderValue =
+                response.headers().firstValue("Content-Type").orElse("");
+
+        assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
+                "Content-Type должен содержать формат данных и кодировку");
+        assertEquals(200,response.statusCode());
+        assertEquals(movie1, gson.fromJson(response.body(), Movie.class));
+
+    }
+
+    //getMovieID с id10 вернет код 404
+    @Test
+    void getMovieID_ID0_return404() throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE + "/movies/10"))
+                .header("Content-Type","application/json")
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String contentTypeHeaderValue =
+                response.headers().firstValue("Content-Type").orElse("");
+
+        assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
+                "Content-Type должен содержать формат данных и кодировку");
+        assertEquals(404,response.statusCode());
+        assertTrue(response.body().contains("Фильм не найден"));
+    }
+
+    //getMovieID с некорректным id вернет 400
+    @Test
+    void getMovieID_IDabc_return400() throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE + "/movies/abc"))
+                .header("Content-Type","application/json")
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String contentTypeHeaderValue =
+                response.headers().firstValue("Content-Type").orElse("");
+
+        assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
+                "Content-Type должен содержать формат данных и кодировку");
+        assertEquals(400,response.statusCode());
+        assertTrue(response.body().contains("Некорректный ID"));
+    }
+    
+    //deleteMovie с корректным ID2 удалит элемент
+    @Test
+    void deleteMovies_ID2() throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE + "/movies/2"))
+                .header("Content-Type","application/json")
+                .version(HttpClient.Version.HTTP_1_1)
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String contentTypeHeaderValue =
+                response.headers().firstValue("Content-Type").orElse("");
+
+        assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
+                "Content-Type должен содержать формат данных и кодировку");
+        assertEquals(204,response.statusCode());
+    }
+
+    //deleteMovie с id5 которого нет вернет код 404
+    @Test
+    void deleteMovies_ID5() throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE + "/movies/5"))
+                .header("Content-Type","application/json")
+                .version(HttpClient.Version.HTTP_1_1)
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String contentTypeHeaderValue =
+                response.headers().firstValue("Content-Type").orElse("");
+
+        assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
+                "Content-Type должен содержать формат данных и кодировку");
+        assertEquals(404,response.statusCode());
     }
 }

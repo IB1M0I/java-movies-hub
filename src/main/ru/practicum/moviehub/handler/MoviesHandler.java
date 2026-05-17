@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MoviesHandler extends BaseHttpHandler {
     MoviesStore store;
@@ -26,34 +27,66 @@ public class MoviesHandler extends BaseHttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange exchange)  {
         try {
 
+            String path = exchange.getRequestURI().getPath();
+            String[] strSplit = path.split("/");
             switch (exchange.getRequestMethod()) {
                 case "GET":
-                    String path = exchange.getRequestURI().getPath();
-
-
-                    if (path.split("/").length == 2) {
-                        sendAllMovies(exchange);
+                    if (strSplit.length == 2) {
+                        getAllMovies(exchange);
+                    } else if (strSplit.length == 3) {
+                        getMovieID(exchange, strSplit[2]);
                     }
                     break;
                 case "POST":
                     addNewMovie(exchange);
+                    break;
+                case "DELETE":
+                    if(strSplit.length == 3){}
+                    deleteMovie(exchange,strSplit[2]);
+                    break;
             }
-        }catch (ErrorResponse e){
-            sendJson(exchange,e.getCode(), e.getError());
-        }catch (Exception e){
-            e.printStackTrace();
+        } catch (ErrorResponse e) {
+            try {
+                sendJson(exchange, e.getCode(), e.getError());
+            } catch (IOException ex) {
+                System.out.println("Ошибка отправки");
+            }
+        } catch (IOException e){
+            System.out.println("Ошибка отправки");
         }
     }
 
-    private void sendAllMovies(HttpExchange exchange) throws IOException {
+    private void getAllMovies(HttpExchange exchange) throws IOException {
         String json = gson.toJson(store.getAllMovies());
         sendJson(exchange, 200, json);
     }
 
-    private void addNewMovie(HttpExchange exchange) throws IOException,ErrorResponse{
+    private void getMovieID(HttpExchange exchange, String strID) throws ErrorResponse {
+        try {
+            int id = Integer.parseInt(strID);
+
+            Optional<Movie> optionalMovie = store.getAllMovies().stream()
+                    .filter(m -> m.getID() == id)
+                    .findFirst();
+
+            if(optionalMovie.isPresent()){
+                Movie movie = optionalMovie.get();
+                sendJson(exchange,200,gson.toJson(movie));
+            }else{
+                throw new ErrorResponse("Фильм не найден",404);
+            }
+        } catch (NumberFormatException e) {
+            throw new ErrorResponse("Некорректный ID",400);
+        } catch (IOException e) {
+            System.out.println("Ошибка отправки");;
+        }
+
+    }
+
+    private void addNewMovie(HttpExchange exchange) throws IOException, ErrorResponse {
         Movie newMovie;
 
         try (InputStream is = exchange.getRequestBody()) {
@@ -68,7 +101,7 @@ public class MoviesHandler extends BaseHttpHandler {
             if (jsonElement.isJsonObject()) {
                 jsonObject = jsonElement.getAsJsonObject();
             } else {
-                throw new ErrorResponse("Неправильный JSON",400);//TODO
+                throw new ErrorResponse("Неправильный JSON", 400);//TODO
             }
 
             if (jsonObject.get("title").getAsString().length() >= 100) {
@@ -100,8 +133,26 @@ public class MoviesHandler extends BaseHttpHandler {
             System.out.println("Фильм добавлен");
         }
 
+
+
     }
 
+    private void deleteMovie(HttpExchange exchange, String strID) throws ErrorResponse {
+        try {
+            int id = Integer.parseInt(strID);
+
+            if(store.delet(id)){
+                sendNoContent(exchange);
+            }else{
+                throw new ErrorResponse("Фильм не найден",404);
+            }
+
+        }catch (NumberFormatException e){
+            throw new ErrorResponse("Некорректный ID",400);
+        } catch (IOException e) {
+            System.out.println("Ошибка отправки ответа");
+        }
+    }
 }
 
 

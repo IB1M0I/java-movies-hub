@@ -24,4 +24,8 @@ public class MoviesStore {
         Movie.clearID();
     }
 
+    public boolean delet(int id){
+       return movies.removeIf(movie ->  movie.getID() == id);
+    }
+
 }

@@ -43,8 +43,9 @@ public class Movie {
     public boolean checkYear(int year){
         return year > 1888 && year < LocalDate.now().getYear() + 1;
     }
-    public boolean checkYear(){
-        return this.year > 1888 && this.year < LocalDate.now().getYear() + 1;
+
+    public int getID() {
+        return ID;
     }
 
     @Override
