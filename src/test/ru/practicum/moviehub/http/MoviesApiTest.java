@@ -361,7 +361,7 @@ public class MoviesApiTest {
         assertEquals("application/json; charset=UTF-8", contentTypeHeaderValue,
                 "Content-Type должен содержать формат данных и кодировку");
         assertEquals(422, response.statusCode());
-        assertTrue(response.body().contains("Год должен быть от 1888 до " + LocalDate.now().getYear() + 1));
+        assertTrue(response.body().contains("Год должен быть между 1888 до " + LocalDate.now().getYear()));
     }
 
     //addNewMovie с годом 2027 вернет код 422

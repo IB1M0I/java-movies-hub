@@ -114,6 +114,11 @@ public class MoviesHandler extends BaseHttpHandler {
             List<String> error = new ArrayList<>();
 
             JsonElement jsonElement = null;
+            List<String> headers = exchange.getRequestHeaders().get("Content-Type");
+            if (headers == null || !headers.contains("application/json")) {
+                throw new ErrorResponse("Неподдерживаемый тип данных", 415);
+            }
+
             try {
                 jsonElement = JsonParser.parseString(json);
             } catch (JsonSyntaxException e) {
@@ -132,13 +137,10 @@ public class MoviesHandler extends BaseHttpHandler {
             if (jsonObject.get("title").getAsString().isEmpty()) {
                 error.add("Название не должно быть пустым");
             }
-            if (jsonObject.get("year").getAsInt() < 1888 || jsonObject.get("year").getAsInt() > LocalDate.now().getYear() + 1) {
-                error.add("Год должен быть от 1888 до " + LocalDate.now().getYear() + 1);
+            if (jsonObject.get("year").getAsInt() < 1888 || jsonObject.get("year").getAsInt() > LocalDate.now().getYear()) {
+                error.add("Год должен быть между 1888 до " + LocalDate.now().getYear());
             }
-            List<String> headers = exchange.getRequestHeaders().get("Content-Type");
-            if (headers == null || !headers.contains("application/json")) {
-                throw new ErrorResponse("Неподдерживаемый тип данных", 415);
-            }
+
 
             if (!error.isEmpty()) {
                 JsonObject errorObject = new JsonObject();
