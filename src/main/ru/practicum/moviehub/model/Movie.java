@@ -1,5 +1,66 @@
 package ru.practicum.moviehub.model;
 
-public class Movie {
 
+import ru.practicum.moviehub.api.ErrorResponse;
+
+import java.time.LocalDate;
+import java.util.Objects;
+
+//Модель фильма
+public class Movie {
+    private String title; //Название
+    private String description; //Описание
+    private String genre; //Жанр
+    private int duration; //Длительность
+    private String director;
+    private int year;
+
+    private static int nextId = 1;
+    private final int id = nextId++;
+
+    public Movie(String title, String description, String genre, int duration, String director, int year) throws IllegalArgumentException, ErrorResponse {
+        this.title = title;
+        this.description = description;
+        this.genre = genre;
+        this.duration = duration;
+        this.director = director;
+
+        if (checkYear(year)) {
+            this.year = year;
+        } else {
+            throw new ErrorResponse("Неправильный год", 422);
+        }
+
+    }
+
+    public Movie() {
+    }
+
+    public static void clearId() {
+        nextId = 1;
+    }
+
+    public boolean checkYear(int year) {
+        return year > 1888 && year < LocalDate.now().getYear() + 1;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Movie movie = (Movie) o;
+        return duration == movie.duration && year == movie.year && id == movie.id && Objects.equals(title, movie.title) && Objects.equals(description, movie.description) && Objects.equals(genre, movie.genre) && Objects.equals(director, movie.director);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, description, genre, duration, director, year, id);
+    }
 }
